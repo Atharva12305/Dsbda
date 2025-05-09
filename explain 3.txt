@@ -1,0 +1,336 @@
+The provided code is a Jupyter Notebook (`Practical-3New.ipynb`) that performs exploratory data analysis (EDA) on the **Mall Customers** dataset and briefly references the **Iris** dataset. The code focuses on loading the data, inspecting its structure, calculating descriptive statistics, and grouping the data by gender for further analysis. Below, I’ll explain each part of the code, including the functions, data, and methods used, step by step.
+
+---
+
+### **1. Imports**
+```python
+import pandas as pd 
+import numpy as np 
+```
+
+- **Purpose**: Imports essential Python libraries for data manipulation and numerical operations.
+- **Libraries and Functions**:
+  - `pandas` (`pd`): A library for data manipulation and analysis, particularly for handling tabular data (DataFrames).
+    - Key methods used: `read_csv`, `head`, `tail`, `info`, `shape`, `describe`, `mean`, `median`, `mode`, `max`, `min`, `std`, `groupby`, `get_group`.
+  - `numpy` (`np`): A library for numerical operations and array manipulations. (Not explicitly used in this code but imported for potential numerical computations.)
+
+---
+
+### **2. Loading the Dataset**
+```python
+df = pd.read_csv(r"D:\DSBDA\Lab File\Practical-3\Mall_Customers.csv")
+```
+
+- **Purpose**: Attempts to load the **Mall Customers** dataset from a CSV file.
+- **Method**:
+  - `pd.read_csv(file_path)`: Reads a CSV file into a pandas DataFrame.
+  - The `r` prefix in `r"D:\DSBDA\..."` ensures the file path is treated as a raw string, avoiding issues with backslashes in Windows paths.
+- **Error Encountered**:
+  - A `FileNotFoundError` occurs because the file `Mall_Customers.csv` is not found at the specified path (`D:\DSBDA\Lab File\Practical-3\`).
+  - Despite the error, later cells show the dataset being loaded successfully, suggesting the file was eventually found or the code was run in a different environment with the correct file path.
+
+- **Dataset Description**:
+  - **Name**: Mall Customers Dataset.
+  - **Shape**: 200 rows × 5 columns.
+  - **Columns**:
+    - `CustomerID`: Unique identifier for each customer (integer).
+    - `Gender`: Customer’s gender (categorical: Male, Female).
+    - `Age`: Customer’s age (integer).
+    - `Annual Income (k$)`: Customer’s annual income in thousands of dollars (integer).
+    - `Spending Score (1-100)`: A score assigned to the customer based on their spending behavior (integer, range 1–100).
+  - **Purpose**: This dataset is commonly used for customer segmentation tasks, such as clustering customers based on their income and spending behavior (e.g., using K-means clustering).
+
+---
+
+### **3. Displaying the Dataset**
+```python
+df
+df.head()
+df.tail()
+```
+
+- **Purpose**: Inspects the dataset by displaying the entire DataFrame, the first five rows, and the last five rows.
+- **Methods**:
+  - `df`: In Jupyter, typing the DataFrame name displays it as a formatted table (200 rows × 5 columns).
+  - `df.head()`: Returns the first 5 rows of the DataFrame (default behavior).
+    - Output: Shows rows with `CustomerID` 1–5, including columns like `Gender`, `Age`, etc.
+  - `df.tail()`: Returns the last 5 rows of the DataFrame.
+    - Output: Shows rows with `CustomerID` 196–200.
+- **Use Case**: These methods help verify the data’s structure, check for missing values, and confirm the dataset was loaded correctly.
+
+---
+
+### **4. Inspecting Dataset Structure**
+```python
+df.info()
+df.shape
+```
+
+- **Purpose**: Provides metadata about the dataset’s structure and size.
+- **Methods**:
+  - `df.info()`: Displays a summary of the DataFrame, including:
+    - Number of entries (200).
+    - Column names, non-null counts, and data types (`int64` for `CustomerID`, `Age`, `Annual Income (k$)`, `Spending Score (1-100)`; `object` for `Gender`).
+    - Memory usage (7.9+ KB).
+    - Output confirms no missing values (all columns have 200 non-null entries).
+  - `df.shape`: Returns a tuple representing the DataFrame’s dimensions (rows, columns).
+    - Output: `(200, 5)` (200 rows, 5 columns).
+- **Use Case**: These methods are used to understand the dataset’s size, data types, and check for missing values before further analysis.
+
+---
+
+### **5. Descriptive Statistics**
+```python
+df.describe()
+```
+
+- **Purpose**: Generates descriptive statistics for numerical columns.
+- **Method**:
+  - `df.describe()`: Computes statistics for columns with numerical data (`CustomerID`, `Age`, `Annual Income (k$)`, `Spending Score (1-100)`).
+    - Excludes `Gender` (categorical).
+    - Statistics include:
+      - `count`: Number of non-null entries (200 for all columns).
+      - `mean`: Average value (e.g., `Age`: 38.85, `Annual Income (k$)`: 60.56).
+      - `std`: Standard deviation (e.g., `Age`: 13.97, `Annual Income (k$)`: 26.26).
+      - `min`: Minimum value (e.g., `Age`: 18, `Annual Income (k$)`: 15).
+      - `25%`, `50%`, `75%`: Quartiles (e.g., `Age` 50% = 36).
+      - `max`: Maximum value (e.g., `Age`: 70, `Annual Income (k$)`: 137).
+- **Use Case**: Provides a quick overview of the distribution and range of numerical features.
+
+---
+
+### **6. Individual Statistics for `Age`**
+```python
+df.Age.mean()
+df.Age.median()
+df.Age.mode()
+```
+
+- **Purpose**: Calculates specific statistics for the `Age` column.
+- **Methods**:
+  - `df.Age.mean()`: Computes the average age.
+    - Output: `38.85`.
+  - `df.Age.median()`: Computes the middle value of age when sorted.
+    - Output: `36.0`.
+  - `df.Age.mode()`: Computes the most frequent age.
+    - Output: `32` (appears most frequently).
+- **Use Case**: These statistics help understand the central tendency and distribution of the `Age` column.
+
+---
+
+### **7. Statistics for Selected Columns**
+```python
+df[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].median()
+df[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].mean()
+df[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].max()
+df[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].min()
+df[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].std()
+```
+
+- **Purpose**: Computes specific statistics for the `Age`, `Annual Income (k$)`, and `Spending Score (1-100)` columns.
+- **Methods**:
+  - `df[['Age', ...]].median()`: Median values.
+    - Output: `Age`: 36.0, `Annual Income (k$)`: 61.5, `Spending Score (1-100)`: 50.0.
+  - `df[['Age', ...]].mean()`: Mean values.
+    - Output: `Age`: 38.85, `Annual Income (k$)`: 60.56, `Spending Score (1-100)`: 50.20.
+  - `df[['Age', ...]].max()`: Maximum values.
+    - Output: `Age`: 70, `Annual Income (k$)`: 137, `Spending Score (1-100)`: 99.
+  - `df[['Age', ...]].min()`: Minimum values.
+    - Output: `Age`: 18, `Annual Income (k$)`: 15, `Spending Score (1-100)`: 1.
+  - `df[['Age', ...]].std()`: Standard deviation.
+    - Output: `Age`: 13.97, `Annual Income (k$)`: 26.26, `Spending Score (1-100)`: 25.82.
+- **Use Case**: These statistics provide insights into the central tendency, spread, and range of key features, useful for understanding customer demographics and behavior.
+
+---
+
+### **8. Grouping by Gender**
+```python
+df2 = df.groupby('Gender')
+```
+
+- **Purpose**: Groups the DataFrame by the `Gender` column for group-specific analysis.
+- **Method**:
+  - `df.groupby('Gender')`: Creates a `GroupBy` object with two groups: `Male` and `Female`.
+    - `Female`: 112 rows.
+    - `Male`: 88 rows.
+- **Use Case**: Grouping allows for comparative analysis between genders.
+
+---
+
+### **9. Displaying Grouped Data**
+```python
+for Gender, Gender_f in df2:
+    print(Gender)
+    print(Gender_f)
+```
+
+- **Purpose**: Iterates through the grouped data and prints each group.
+- **Logic**:
+  - The `for` loop iterates over the `GroupBy` object (`df2`), where:
+    - `Gender`: The group name (`Female` or `Male`).
+    - `Gender_f`: The DataFrame containing rows for that gender.
+  - Output:
+    - `Female`: DataFrame with 112 rows (all female customers).
+    - `Male`: DataFrame with 88 rows (all male customers).
+- **Use Case**: Useful for inspecting the data within each group.
+
+---
+
+### **10. Accessing Specific Groups**
+```python
+df2.get_group('Male')
+df2.get_group('Female')
+```
+
+- **Purpose**: Retrieves the DataFrame for a specific gender group.
+- **Method**:
+  - `df2.get_group('Male')`: Returns the DataFrame for male customers (88 rows).
+  - `df2.get_group('Female')`: Returns the DataFrame for female customers (112 rows).
+- **Use Case**: Allows targeted analysis of a specific group without iterating through all groups.
+
+---
+
+### **11. Grouped Statistics**
+```python
+df2[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].median()
+df2[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].mean()
+df2[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].max()
+df2[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].min()
+df2[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].std()
+```
+
+- **Purpose**: Computes statistics for `Age`, `Annual Income (k$)`, and `Spending Score (1-100)` for each gender group.
+- **Methods and Outputs**:
+  - **Median**:
+    - `Female`: `Age`: 35.0, `Annual Income (k$)`: 60.0, `Spending Score (1-100)`: 50.0.
+    - `Male`: `Age`: 37.0, `Annual Income (k$)`: 62.5, `Spending Score (1-100)`: 50.0.
+  - **Mean**:
+    - `Female`: `Age`: 38.10, `Annual Income (k$)`: 59.25, `Spending Score (1-100)`: 51.53.
+    - `Male`: `Age`: 39.81, `Annual Income (k$)`: 62.23, `Spending Score (1-100)`: 48.51.
+  - **Max**:
+    - `Female`: `Age`: 68, `Annual Income (k$)`: 126, `Spending Score (1-100)`: 99.
+    - `Male`: `Age`: 70, `Annual Income (k$)`: 137, `Spending Score (1-100)`: 97.
+  - **Min**:
+    - `Female`: `Age`: 18, `Annual Income (k$)`: 16, `Spending Score (1-100)`: 5.
+    - `Male`: `Age`: 18, `Annual Income (k$)`: 15, `Spending Score (1-100)`: 1.
+  - **Standard Deviation**:
+    - `Female`: `Age`: 12.64, `Annual Income (k$)`: 26.01, `Spending Score (1-100)`: 24.11.
+    - `Male`: `Age`: 15.51, `Annual Income (k$)`: 26.64, `Spending Score (1-100)`: 27.90.
+- **Use Case**: These statistics reveal differences in demographics and spending behavior between genders. For example:
+  - Males have a slightly higher average age (39.81 vs. 38.10) and income (62.23 vs. 59.25).
+  - Females have a higher average spending score (51.53 vs. 48.51).
+
+---
+
+### **12. Iris Dataset Reference**
+```python
+df3
+```
+
+- **Purpose**: Displays a DataFrame `df3` containing the **Iris** dataset.
+- **Dataset Description**:
+  - **Shape**: 150 rows × 5 columns.
+  - **Columns**:
+    - `sepal length (cm)`: Sepal length in centimeters (float).
+    - `sepal width (cm)`: Sepal width in centimeters (float).
+    - `petal length (cm)`: Petal length in centimeters (float).
+    - `petal width (cm)`: Petal width in centimeters (float).
+    - `target`: Class label (integer: 0 = Setosa, 1 = Versicolor, 2 = Virginica).
+  - **Purpose**: The Iris dataset is commonly used for classification tasks (e.g., predicting the flower species).
+- **Issue**:
+  - The code does not show how `df3` was created (e.g., no `pd.read_csv` or `sklearn.datasets.load_iris` call).
+  - Likely, `df3` was loaded in a previous cell not shown, possibly using:
+    ```python
+    from sklearn.datasets import load_iris
+    iris = load_iris()
+    df3 = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    df3['target'] = iris.target
+    ```
+- **Use Case**: The Iris dataset is included but not analyzed in this notebook. It may be intended for a classification task or comparison with the Mall Customers dataset.
+
+---
+
+### **Summary of Key Functions and Methods**
+| **Library/Method** | **Purpose** | **Usage in Code** |
+|--------------------|-------------|-------------------|
+| `pd.read_csv` | Loads CSV file into a DataFrame | Attempts to load `Mall_Customers.csv` |
+| `df.head()` | Displays first 5 rows | Inspects dataset start |
+| `df.tail()` | Displays last 5 rows | Inspects dataset end |
+| `df.info()` | Shows DataFrame metadata | Checks data types and missing values |
+| `df.shape` | Returns DataFrame dimensions | Confirms size (200, 5) |
+| `df.describe()` | Generates descriptive statistics | Summarizes numerical columns |
+| `df.Age.mean()` | Computes mean of `Age` | Output: 38.85 |
+| `df.Age.median()` | Computes median of `Age` | Output: 36.0 |
+| `df.Age.mode()` | Computes mode of `Age` | Output: 32 |
+| `df[['Age', ...]].mean()` | Computes mean for selected columns | Summarizes `Age`, `Income`, `Spending Score` |
+| `df[['Age', ...]].median()` | Computes median for selected columns | Summarizes `Age`, `Income`, `Spending Score` |
+| `df[['Age', ...]].max()` | Computes maximum for selected columns | Summarizes `Age`, `Income`, `Spending Score` |
+| `df[['Age', ...]].min()` | Computes minimum for selected columns | Summarizes `Age`, `Income`, `Spending Score` |
+| `df[['Age', ...]].std()` | Computes standard deviation | Summarizes `Age`, `Income`, `Spending Score` |
+| `df.groupby('Gender')` | Groups DataFrame by `Gender` | Creates `Female` and `Male` groups |
+| `df2.get_group()` | Retrieves specific group | Accesses `Male` or `Female` DataFrame |
+| `df2[...].mean()` | Computes group-wise mean | Compares genders |
+| `df2[...].median()` | Computes group-wise median | Compares genders |
+| `df2[...].max()` | Computes group-wise maximum | Compares genders |
+| `df2[...].min()` | Computes group-wise minimum | Compares genders |
+| `df2[...].std()` | Computes group-wise standard deviation | Compares genders |
+
+---
+
+### **Data Overview**
+- **Mall Customers Dataset**:
+  - **Shape**: 200 rows × 5 columns.
+  - **Columns**: `CustomerID`, `Gender`, `Age`, `Annual Income (k$)`, `Spending Score (1-100)`.
+  - **No Missing Values**: Confirmed by `df.info()`.
+  - **Key Insights**:
+    - Average age: 38.85, median: 36, mode: 32.
+    - Income ranges from 15k to 137k (mean: 60.56k).
+    - Spending score ranges from 1 to 99 (mean: 50.20).
+    - Females (112) outnumber males (88).
+    - Females have a slightly higher average spending score (51.53 vs. 48.51).
+
+- **Iris Dataset**:
+  - **Shape**: 150 rows × 5 columns.
+  - **Columns**: `sepal length (cm)`, `sepal width (cm)`, `petal length (cm)`, `petal width (cm)`, `target`.
+  - **Purpose**: Likely included for a classification task but not analyzed here.
+
+---
+
+### **Potential Improvements**
+1. **Error Handling**: Add checks for file existence before loading the CSV.
+   ```python
+   import os
+   file_path = r"D:\DSBDA\Lab File\Practical-3\Mall_Customers.csv"
+   if os.path.exists(file_path):
+       df = pd.read_csv(file_path)
+   else:
+       print("File not found!")
+   ```
+2. **Visualizations**: Add plots (e.g., histograms, box plots, scatter plots) to visualize distributions and relationships.
+   ```python
+   import seaborn as sns
+   import matplotlib.pyplot as plt
+   sns.scatterplot(x='Annual Income (k$)', y='Spending Score (1-100)', hue='Gender', data=df)
+   plt.show()
+   ```
+3. **Clustering Analysis**: Since this dataset is often used for clustering, apply K-means clustering to segment customers.
+   ```python
+   from sklearn.cluster import KMeans
+   X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
+   kmeans = KMeans(n_clusters=5, random_state=42)
+   df['Cluster'] = kmeans.fit_predict(X)
+   ```
+4. **Handle Iris Dataset**: If intended, include analysis for the Iris dataset (e.g., classification using Logistic Regression).
+5. **Feature Encoding**: Encode `Gender` (e.g., Male=0, Female=1) for machine learning tasks.
+   ```python
+   df['Gender'] = df['Gender'].map({'Male': 0, 'Female': 1})
+   ```
+6. **Correlation Analysis**: Compute correlations between numerical features.
+   ```python
+   df[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']].corr()
+   ```
+
+---
+
+### **Conclusion**
+The code performs exploratory data analysis on the **Mall Customers** dataset, loading the data, inspecting its structure, and computing descriptive statistics both overall and by gender. It uses pandas methods like `read_csv`, `head`, `describe`, and `groupby` to summarize the data and compare male and female customers. The **Iris** dataset is referenced but not analyzed. The code is a good starting point for understanding customer demographics but could be enhanced with visualizations, clustering, or error handling to make it more robust and insightful.

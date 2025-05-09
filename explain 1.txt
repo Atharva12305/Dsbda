@@ -1,0 +1,348 @@
+The provided code is a Jupyter Notebook (`Practical-1.ipynb`) that performs exploratory data analysis (EDA) and preprocessing on the **Heart Disease** dataset. The dataset is loaded, inspected, and preprocessed to prepare it for machine learning tasks. The preprocessing steps include checking for missing values, summarizing the dataset, normalizing numerical features, converting data types, and encoding categorical variables. Below, I’ll explain each part of the code, including the functions, data, and methods used, step by step.
+
+---
+
+### **1. Imports**
+```python
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+```
+
+- **Purpose**: Imports necessary libraries for data manipulation, numerical operations, and visualization.
+- **Libraries**:
+  - `pandas` (`pd`): For data manipulation and handling DataFrames.
+    - Methods used: `read_csv`, `head`, `tail`, `isnull`, `sum`, `describe`, `shape`, `dtypes`, `astype`, `get_dummies`.
+  - `numpy` (`np`): For numerical operations (not directly used in this code but imported for potential array operations).
+  - `seaborn` (`sns`): For enhanced visualizations (not used in this code but imported).
+  - `matplotlib.pyplot` (`plt`): For creating visualizations (not used in this code but imported).
+- **Use Case**: These libraries provide the foundation for loading, analyzing, and preprocessing the dataset.
+
+---
+
+### **2. Loading the Heart Disease Dataset**
+```python
+heart_data = pd.read_csv(r"D:\DSBDA\Lab File\Practical-1\heart.csv")
+print(heart_data.head())
+```
+
+- **Purpose**: Loads the Heart Disease dataset from a CSV file into a pandas DataFrame and displays the first 5 rows.
+- **Dataset Description**:
+  - **Name**: Heart Disease Dataset (likely from UCI Machine Learning Repository or similar).
+  - **Shape**: 1025 rows × 14 columns (confirmed later via `shape`).
+  - **Columns**:
+    - `age`: Age of the patient (integer).
+    - `sex`: Sex (1 = male, 0 = female) (integer).
+    - `cp`: Chest pain type (0–3) (integer, categorical).
+    - `trestbps`: Resting blood pressure (mm Hg) (integer).
+    - `chol`: Serum cholesterol (mg/dl) (integer).
+    - `fbs`: Fasting blood sugar > 120 mg/dl (1 = true, 0 = false) (integer).
+    - `restecg`: Resting electrocardiographic results (0–2) (integer).
+    - `thalach`: Maximum heart rate achieved (integer).
+    - `exang`: Exercise-induced angina (1 = yes, 0 = no) (integer).
+    - `oldpeak`: ST depression induced by exercise relative to rest (float).
+    - `slope`: Slope of the peak exercise ST segment (0–2) (integer).
+    - `ca`: Number of major vessels (0–4) colored by fluoroscopy (integer).
+    - `thal`: Thalassemia (0–3) (integer).
+    - `target`: Presence of heart disease (1 = disease, 0 = no disease) (integer).
+  - **Purpose**: Used for predicting the presence of heart disease based on clinical features.
+- **Methods**:
+  - `pd.read_csv(file_path)`: Reads the CSV file into a pandas DataFrame.
+    - `r"D:\DSBDA\Lab File\Practical-1\heart.csv"`: Raw string path to the CSV file.
+  - `heart_data.head()`: Displays the first 5 rows of the DataFrame.
+    - Output: Shows rows 0–4 with all 14 columns, e.g., row 0: `age=52`, `sex=1`, `cp=0`, `trestbps=125`, etc.
+- **Use Case**: Loading the dataset and inspecting the first few rows verifies the data structure and content.
+
+---
+
+### **3. Displaying the First Five Entries**
+```python
+heart_data.head()
+```
+
+- **Purpose**: Re-displays the first 5 rows of the DataFrame.
+- **Method**:
+  - `heart_data.head()`: Returns the first 5 rows (default behavior).
+    - Output: Same as the previous `print(heart_data.head())`, but formatted as a pandas DataFrame in the notebook.
+- **Use Case**: Provides a quick visual inspection of the dataset’s structure and values.
+
+---
+
+### **4. Displaying the Last Five Entries**
+```python
+heart_data.tail()
+```
+
+- **Purpose**: Displays the last 5 rows of the DataFrame to inspect the end of the dataset.
+- **Method**:
+  - `heart_data.tail()`: Returns the last 5 rows (default behavior).
+    - Output: Shows rows 1020–1024, e.g., row 1024: `age=54`, `sex=1`, `cp=0`, `trestbps=120`, etc.
+- **Use Case**: Verifies the dataset’s consistency and checks for any anomalies at the end.
+
+---
+
+### **5. Checking for Missing Values**
+```python
+missing_values = heart_data.isnull().sum()
+print("Missing Values:\n", missing_values)
+```
+
+- **Purpose**: Identifies the number of missing values in each column.
+- **Methods**:
+  - `heart_data.isnull()`: Returns a DataFrame of booleans (`True` for missing values, `False` otherwise).
+  - `sum()`: Aggregates the `True` values (treated as 1) to count missing values per column.
+  - Output: All columns show 0 missing values, indicating a complete dataset.
+    ```
+    age         0
+    sex         0
+    cp          0
+    trestbps    0
+    chol        0
+    fbs         0
+    restecg     0
+    thalach     0
+    exang       0
+    oldpeak     0
+    slope       0
+    ca          0
+    thal        0
+    target      0
+    dtype: int64
+    ```
+- **Use Case**: Confirms that no imputation is needed, as the dataset has no missing values.
+
+- **Note**: This code block appears twice in the notebook, which is redundant but harmless.
+
+---
+
+### **6. Describing the Dataset**
+```python
+print(heart_data.describe())
+```
+
+- **Purpose**: Generates descriptive statistics for all numerical columns.
+- **Method**:
+  - `heart_data.describe()`: Computes statistics for all numerical columns (`age`, `sex`, `cp`, `trestbps`, `chol`, `fbs`, `restecg`, `thalach`, `exang`, `oldpeak`, `slope`, `ca`, `thal`, `target`).
+    - Statistics include:
+      - `count`: Number of non-null entries (1025 for all columns).
+      - `mean`: Average (e.g., `age`: 54.43, `trestbps`: 131.61, `chol`: 246.00).
+      - `std`: Standard deviation (e.g., `age`: 9.07, `trestbps`: 17.52, `chol`: 51.59).
+      - `min`: Minimum value (e.g., `age`: 29, `trestbps`: 94, `chol`: 126).
+      - `25%`, `50%`, `75%`: Quartiles (e.g., `age` 50% = 56, `trestbps` 50% = 130).
+      - `max`: Maximum value (e.g., `age`: 77, `trestbps`: 200, `chol`: 564).
+    - Output: A table summarizing these statistics for all columns.
+- **Use Case**: Provides insights into the distribution, range, and variability of features, useful for identifying outliers or skewed distributions.
+
+---
+
+### **7. Checking Dataset Dimensions**
+```python
+print("Dataset Dimensions:", heart_data.shape)
+```
+
+- **Purpose**: Displays the number of rows and columns in the DataFrame.
+- **Method**:
+  - `heart_data.shape`: Returns a tuple `(rows, columns)`.
+    - Output: `(1025, 14)`, indicating 1025 rows and 14 columns.
+- **Use Case**: Confirms the dataset’s size, which is important for understanding its scale and planning analysis.
+
+---
+
+### **8. Summarizing Variable Types**
+```python
+print(heart_data.dtypes)
+```
+
+- **Purpose**: Displays the data type of each column.
+- **Method**:
+  - `heart_data.dtypes`: Returns the data type for each column.
+    - Output:
+      ```
+      age           int64
+      sex           int64
+      cp            int64
+      trestbps      int64
+      chol          int64
+      fbs           int64
+      restecg       int64
+      thalach       int64
+      exang         int64
+      oldpeak     float64
+      slope         int64
+      ca            int64
+      thal          int64
+      target        int64
+      dtype: object
+      ```
+- **Observations**:
+  - Most columns are `int64` (integers), except `oldpeak`, which is `float64`.
+  - Columns like `cp`, `sex`, `fbs`, `restecg`, `exang`, `slope`, `ca`, `thal`, and `target` are categorical despite being stored as integers.
+- **Use Case**: Identifies data types to determine if conversions (e.g., to categorical) are needed for analysis or modeling.
+
+---
+
+### **9. Converting Incorrect Data Types**
+```python
+heart_data['cp'] = heart_data['cp'].astype('category')
+```
+
+- **Purpose**: Converts the `cp` (chest pain type) column from `int64` to a categorical data type.
+- **Method**:
+  - `heart_data['cp'].astype('category')`: Changes the data type of the `cp` column to `category`.
+    - `cp` represents chest pain type with values 0–3 (e.g., 0 = typical angina, 1 = atypical angina, 2 = non-anginal pain, 3 = asymptomatic).
+    - Categorical data types are more memory-efficient and appropriate for variables with a limited set of values.
+- **Effect**:
+  - `cp` is now stored as a pandas `category` type instead of `int64`.
+- **Use Case**: Ensures that `cp` is treated as a categorical variable in subsequent analyses or visualizations, improving interpretability and model performance.
+
+---
+
+### **10. Normalizing Numeric Data**
+```python
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+numeric_columns = ['age', 'trestbps', 'chol']
+heart_data[numeric_columns] = scaler.fit_transform(heart_data[numeric_columns])
+print(heart_data.head())
+```
+
+- **Purpose**: Normalizes the numerical columns (`age`, `trestbps`, `chol`) to have a mean of 0 and a standard deviation of 1 (standardization).
+- **Methods**:
+  - `from sklearn.preprocessing import StandardScaler`: Imports the `StandardScaler` class for standardization.
+  - `scaler = StandardScaler()`: Initializes the scaler.
+  - `numeric_columns = ['age', 'trestbps', 'chol']`: Specifies the columns to standardize.
+  - `scaler.fit_transform(heart_data[numeric_columns])`:
+    - Fits the scaler to compute the mean and standard deviation for each column.
+    - Transforms the data using the formula: `X_scaled = (X - mean) / std`.
+    - Returns a NumPy array with standardized values.
+  - `heart_data[numeric_columns] = ...`: Assigns the standardized values back to the original DataFrame.
+  - `print(heart_data.head())`: Displays the first 5 rows to verify the transformation.
+    - Output: Shows standardized values for `age`, `trestbps`, and `chol` (e.g., `age=-0.268437`, `trestbps=-0.377636`, `chol=-0.659332` for row 0).
+- **Effect**:
+  - `age`, `trestbps`, and `chol` are transformed to have a mean of 0 and a standard deviation of 1.
+  - Other columns remain unchanged.
+- **Use Case**: Standardization is crucial for machine learning algorithms (e.g., SVM, KNN, logistic regression) that are sensitive to the scale of features.
+
+---
+
+### **11. One-Hot Encoding Categorical Variables**
+```python
+heart_data_encoded = pd.get_dummies(heart_data, columns=['cp'], drop_first=True)
+print(heart_data_encoded.head())
+```
+
+- **Purpose**: Converts the categorical `cp` column into multiple binary (dummy) columns using one-hot encoding.
+- **Methods**:
+  - `pd.get_dummies(heart_data, columns=['cp'], drop_first=True)`:
+    - `columns=['cp']`: Specifies the column to encode.
+    - `drop_first=True`: Drops the first category (e.g., `cp_0`) to avoid multicollinearity (dummy variable trap), creating `k-1` dummy variables for `k` categories.
+    - For `cp` (values 0–3), creates three new columns: `cp_1`, `cp_2`, `cp_3` (representing `cp=1`, `cp=2`, `cp=3`).
+    - Each new column is a boolean (`True`/`False`) or integer (1/0) indicating the presence of that category.
+  - Output DataFrame (`heart_data_encoded`):
+    - Original columns minus `cp`, plus new columns `cp_1`, `cp_2`, `cp_3`.
+    - Shape: 1025 rows × 16 columns (14 original - 1 `cp` + 3 dummy columns).
+  - `print(heart_data_encoded.head())`: Displays the first 5 rows of the encoded DataFrame.
+    - Output: Shows `cp_1`, `cp_2`, `cp_3` as `False` for rows where `cp=0`, and standardized values for `age`, `trestbps`, `chol`.
+- **Effect**:
+  - Replaces `cp` with three binary columns: `cp_1`, `cp_2`, `cp_3`.
+  - Example: If `cp=0`, then `cp_1=False`, `cp_2=False`, `cp_3=False`.
+- **Use Case**: One-hot encoding allows categorical variables to be used in machine learning models that require numerical inputs (e.g., linear regression, neural networks).
+
+---
+
+### **Summary of Key Functions and Methods**
+| **Library/Method** | **Purpose** | **Usage in Code** |
+|--------------------|-------------|-------------------|
+| `pd.read_csv` | Loads CSV file into DataFrame | Loads `heart.csv` |
+| `heart_data.head()` | Displays first 5 rows | Inspects dataset start |
+| `heart_data.tail()` | Displays last 5 rows | Inspects dataset end |
+| `heart_data.isnull().sum()` | Counts missing values | Checks for missing data |
+| `heart_data.describe()` | Generates descriptive statistics | Summarizes numerical columns |
+| `heart_data.shape` | Returns dimensions | Confirms dataset size |
+| `heart_data.dtypes` | Shows column data types | Identifies variable types |
+| `heart_data['cp'].astype('category')` | Converts column to categorical | Changes `cp` to `category` type |
+| `StandardScaler` | Standardizes numerical data | Normalizes `age`, `trestbps`, `chol` |
+| `scaler.fit_transform` | Fits and transforms data | Applies standardization |
+| `pd.get_dummies` | Performs one-hot encoding | Encodes `cp` into dummy variables |
+
+---
+
+### **Data Overview**
+- **Heart Disease Dataset**:
+  - **Shape**: 1025 rows × 14 columns (original), 1025 rows × 16 columns (after encoding).
+  - **Columns**:
+    - Original: `age`, `sex`, `cp`, `trestbps`, `chol`, `fbs`, `restecg`, `thalach`, `exang`, `oldpeak`, `slope`, `ca`, `thal`, `target`.
+    - Added (after encoding): `cp_1`, `cp_2`, `cp_3`.
+  - **Missing Values**: None (all columns have 0 missing values).
+  - **Data Types**:
+    - Initially: Mostly `int64`, except `oldpeak` (`float64`).
+    - After conversion: `cp` changed to `category`.
+  - **Preprocessing**:
+    - Standardized: `age`, `trestbps`, `chol` (mean = 0, std = 1).
+    - Encoded: `cp` converted to three dummy columns (`cp_1`, `cp_2`, `cp_3`).
+  - **Target**: `target` (0 = no heart disease, 1 = heart disease) for binary classification.
+
+---
+
+### **Potential Improvements**
+1. **Encode Additional Categorical Variables**:
+   - Columns like `sex`, `fbs`, `restecg`, `exang`, `slope`, `ca`, `thal` are also categorical (stored as integers). Convert them to `category` or encode them.
+   ```python
+   categorical_columns = ['sex', 'fbs', 'restecg', 'exang', 'slope', 'ca', 'thal']
+   heart_data[categorical_columns] = heart_data[categorical_columns].astype('category')
+   heart_data_encoded = pd.get_dummies(heart_data, columns=categorical_columns + ['cp'], drop_first=True)
+   ```
+2. **Standardize Additional Numerical Columns**:
+   - Standardize `thalach` and `oldpeak` to ensure all numerical features are on the same scale.
+   ```python
+   numeric_columns = ['age', 'trestbps', 'chol', 'thalach', 'oldpeak']
+   heart_data[numeric_columns] = scaler.fit_transform(heart_data[numeric_columns])
+   ```
+3. **Visualize Data**:
+   - Add visualizations to explore distributions, correlations, or relationships.
+   ```python
+   # Histogram for numerical columns
+   heart_data[numeric_columns].hist(figsize=(10, 6))
+   plt.tight_layout()
+   plt.show()
+   # Correlation heatmap
+   sns.heatmap(heart_data.corr(), annot=True, cmap='coolwarm')
+   plt.show()
+   ```
+4. **Check for Outliers**:
+   - Identify and handle outliers in numerical columns (e.g., `chol`, `trestbps`) using Z-scores or IQR.
+   ```python
+   from scipy.stats import zscore
+   z_scores = zscore(heart_data[numeric_columns])
+   outliers = (np.abs(z_scores) > 3).any(axis=1)
+   print("Outliers detected:", heart_data[outliers].shape[0])
+   ```
+5. **Feature Selection**:
+   - Analyze feature importance or correlations to select relevant features for modeling.
+   ```python
+   from sklearn.ensemble import RandomForestClassifier
+   X = heart_data_encoded.drop('target', axis=1)
+   y = heart_data_encoded['target']
+   model = RandomForestClassifier()
+   model.fit(X, y)
+   feature_importance = pd.Series(model.feature_importances_, index=X.columns)
+   print(feature_importance.sort_values(ascending=False))
+   ```
+6. **Classification Task**:
+   - Use the preprocessed data for a classification task to predict `target`.
+   ```python
+   from sklearn.model_selection import train_test_split
+   from sklearn.linear_model import LogisticRegression
+   X = heart_data_encoded.drop('target', axis=1)
+   y = heart_data_encoded['target']
+   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+   model = LogisticRegression()
+   model.fit(X_train, y_train)
+   print("Accuracy:", model.score(X_test, y_test))
+   ```
+
+---
+
+### **Conclusion**
+The code performs EDA and preprocessing on the **Heart Disease** dataset, including loading the data, inspecting its structure, checking for missing values, summarizing statistics, converting data types, standardizing numerical features, and encoding categorical variables. It uses pandas for data manipulation, `sklearn` for standardization, and prepares the data for machine learning by ensuring proper data types and scales. Enhancements like encoding additional categorical variables, standardizing more features, visualizing data, or building a classification model could further improve the analysis. The dataset is now ready for modeling tasks, such as predicting heart disease presence.

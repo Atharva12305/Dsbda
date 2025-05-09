@@ -1,0 +1,425 @@
+The provided code is a Jupyter Notebook (`Practical-2.ipynb`) that performs data preprocessing on the **Iris** dataset. The steps include loading the dataset, handling missing values, detecting and removing outliers, and applying data transformations (Min-Max scaling and Power Transformation). The code uses several Python libraries for data manipulation, statistical analysis, and visualization. Below, I’ll explain each part of the code, including the functions, data, and methods used, step by step.
+
+---
+
+### **1. Imports**
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import zscore
+from sklearn.preprocessing import MinMaxScaler, PowerTransformer
+from sklearn.datasets import load_iris
+```
+
+- **Purpose**: Imports necessary libraries for data manipulation, visualization, statistical analysis, and preprocessing.
+- **Libraries and Functions**:
+  - `pandas` (`pd`): For data manipulation and handling DataFrames.
+    - Methods used: `DataFrame`, `head`, `info`, `describe`, `loc`, `fillna`, `isnull`, `sum`, `mean`, `iloc`.
+  - `numpy` (`np`): For numerical operations and array manipulations.
+    - Methods used: `nan`, `abs`.
+  - `matplotlib.pyplot` (`plt`): For creating visualizations (e.g., histograms).
+    - Methods used: `figure`, `subplot`, `title`, `tight_layout`, `show`.
+  - `seaborn` (`sns`): For enhanced visualizations (e.g., histograms with kernel density estimation).
+    - Methods used: `histplot`.
+  - `scipy.stats.zscore`: Computes Z-scores for outlier detection.
+  - `sklearn.preprocessing`:
+    - `MinMaxScaler`: Scales data to a fixed range (e.g., [0, 1]).
+    - `PowerTransformer`: Applies a power transformation (e.g., Yeo-Johnson) to reduce skewness.
+  - `sklearn.datasets.load_iris`: Loads the Iris dataset.
+
+---
+
+### **2. Loading the Iris Dataset**
+```python
+iris = load_iris()
+df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+df['target'] = iris.target
+```
+
+- **Purpose**: Loads the Iris dataset and converts it into a pandas DataFrame.
+- **Dataset Description**:
+  - **Name**: Iris Dataset.
+  - **Shape**: 150 rows × 5 columns.
+  - **Columns**:
+    - `sepal length (cm)`: Sepal length in centimeters (float).
+    - `sepal width (cm)`: Sepal width in centimeters (float).
+    - `petal length (cm)`: Petal length in centimeters (float).
+    - `petal width (cm)`: Petal width in centimeters (float).
+    - `target`: Class label (integer: 0 = Setosa, 1 = Versicolor, 2 = Virginica).
+  - **Purpose**: The Iris dataset is commonly used for classification tasks (e.g., predicting flower species).
+- **Methods**:
+  - `load_iris()`: Loads the Iris dataset from `sklearn.datasets`.
+    - Returns an object with attributes:
+      - `data`: Feature matrix (150 rows × 4 columns).
+      - `feature_names`: Column names (`sepal length (cm)`, etc.).
+      - `target`: Array of class labels (0, 1, 2).
+  - `pd.DataFrame(data=iris.data, columns=iris.feature_names)`: Creates a DataFrame from the feature matrix, using feature names as column headers.
+  - `df['target'] = iris.target`: Adds the `target` column to the DataFrame.
+
+---
+
+### **3. Displaying the First Few Rows**
+```python
+df.head()
+```
+
+- **Purpose**: Displays the first 5 rows of the DataFrame to inspect its structure.
+- **Method**:
+  - `df.head()`: Returns the first 5 rows (default behavior).
+    - Output: Shows rows 0–4 with columns `sepal length (cm)`, `sepal width (cm)`, `petal length (cm)`, `petal width (cm)`, and `target`.
+- **Use Case**: Verifies the dataset was loaded correctly and checks column names and data types.
+
+---
+
+### **4. Inspecting Dataset Structure**
+```python
+df.info()
+```
+
+- **Purpose**: Provides metadata about the DataFrame’s structure.
+- **Method**:
+  - `df.info()`: Displays:
+    - Number of entries (150).
+    - Column names, non-null counts, and data types (`float64` for features, `int32` for `target`).
+    - Memory usage (5.4 KB).
+    - Output confirms no missing values initially.
+- **Use Case**: Checks for missing values and verifies data types before preprocessing.
+
+---
+
+### **5. Descriptive Statistics**
+```python
+df.describe()
+```
+
+- **Purpose**: Generates descriptive statistics for all numerical columns.
+- **Method**:
+  - `df.describe()`: Computes statistics for all columns (`sepal length (cm)`, `sepal width (cm)`, `petal length (cm)`, `petal width (cm)`, `target`).
+    - Statistics include:
+      - `count`: Number of non-null entries (150).
+      - `mean`: Average (e.g., `sepal length (cm)`: 5.84, `petal width (cm)`: 1.20).
+      - `std`: Standard deviation (e.g., `sepal length (cm)`: 0.83, `petal width (cm)`: 0.76).
+      - `min`: Minimum value (e.g., `sepal length (cm)`: 4.3, `petal width (cm)`: 0.1).
+      - `25%`, `50%`, `75%`: Quartiles (e.g., `sepal length (cm)` 50% = 5.8).
+      - `max`: Maximum value (e.g., `sepal length (cm)`: 7.9, `petal width (cm)`: 2.5).
+- **Use Case**: Provides insights into the distribution, range, and variability of features.
+
+---
+
+### **6. Introducing Missing Values**
+```python
+df.loc[5:10, 'sepal length (cm)'] = np.nan
+df.loc[15:20, 'petal width (cm)'] = np.nan
+```
+
+- **Purpose**: Artificially introduces missing values for demonstration purposes.
+- **Methods**:
+  - `df.loc[5:10, 'sepal length (cm)']`: Selects rows 5–10 for the `sepal length (cm)` column and sets them to `np.nan` (Not a Number, indicating missing values).
+  - `df.loc[15:20, 'petal width (cm)']`: Sets rows 15–20 for the `petal width (cm)` column to `np.nan`.
+  - `np.nan`: Represents missing values in numerical arrays/DataFrames.
+- **Effect**:
+  - Adds 6 missing values in `sepal length (cm)` (rows 5–10).
+  - Adds 6 missing values in `petal width (cm)` (rows 15–20).
+- **Use Case**: Simulates real-world data issues to demonstrate handling missing values.
+
+---
+
+### **7. Displaying the Dataset with Missing Values**
+```python
+print("\nOriginal Dataset:")
+print(df.head())
+```
+
+- **Purpose**: Displays the first 5 rows to show the dataset before handling missing values.
+- **Method**:
+  - `print(df.head())`: Outputs the first 5 rows, which are unaffected by the missing values introduced (since missing values start at row 5).
+- **Use Case**: Confirms the dataset’s state before preprocessing.
+
+---
+
+### **8. Checking for Missing Values**
+```python
+print("\nMissing Values:")
+print(df.isnull().sum())
+```
+
+- **Purpose**: Identifies the number of missing values in each column.
+- **Methods**:
+  - `df.isnull()`: Returns a DataFrame of booleans (`True` for missing values, `False` otherwise).
+  - `sum()`: Aggregates the `True` values (treated as 1) to count missing values per column.
+  - Output:
+    - `sepal length (cm)`: 6 missing values.
+    - `petal width (cm)`: 6 missing values.
+    - Other columns: 0 missing values.
+- **Use Case**: Quantifies the extent of missing data to decide on an appropriate handling strategy.
+
+---
+
+### **9. Handling Missing Values**
+```python
+df.fillna(df.mean(), inplace=True)
+```
+
+- **Purpose**: Replaces missing values with the mean of the respective column.
+- **Methods**:
+  - `df.mean()`: Computes the mean for each numerical column, ignoring `NaN` values.
+    - For `sepal length (cm)`: Mean of non-missing values.
+    - For `petal width (cm)`: Mean of non-missing values.
+  - `df.fillna(value, inplace=True)`: Replaces `NaN` values with the specified `value` (here, column means).
+    - `inplace=True`: Modifies the DataFrame directly without creating a copy.
+- **Effect**:
+  - Missing values in `sepal length (cm)` (rows 5–10) are replaced with the column’s mean.
+  - Missing values in `petal width (cm)` (rows 15–20) are replaced with the column’s mean.
+- **Use Case**: Imputing missing values with the mean is a simple strategy to maintain data completeness for analysis.
+
+---
+
+### **10. Verifying Missing Values are Handled**
+```python
+print("\nDataset after handling missing values:")
+print(df.isnull().sum())
+```
+
+- **Purpose**: Confirms that all missing values have been replaced.
+- **Method**:
+  - `df.isnull().sum()`: Recalculates missing values per column.
+  - Output: All columns show 0 missing values.
+- **Use Case**: Ensures the imputation step was successful.
+
+---
+
+### **11. Detecting Outliers Using Z-Score**
+```python
+z_scores = zscore(df.iloc[:, :-1])
+abs_z_scores = np.abs(z_scores)
+outliers = (abs_z_scores > 3).any(axis=1)
+```
+
+- **Purpose**: Identifies outliers using the Z-score method.
+- **Methods**:
+  - `df.iloc[:, :-1]`: Selects all rows and all columns except the last one (`target`), as Z-scores are computed for features only.
+  - `zscore(df.iloc[:, :-1])`: Computes the Z-score for each value in the selected columns.
+    - Z-score = `(x - mean) / std`, where `x` is the value, `mean` is the column mean, and `std` is the column standard deviation.
+    - A high Z-score indicates a value far from the mean.
+  - `np.abs(z_scores)`: Takes the absolute value of Z-scores to consider both positive and negative deviations.
+  - `(abs_z_scores > 3).any(axis=1)`:
+    - Checks if any column in a row has an absolute Z-score > 3 (a common threshold for outliers).
+    - Returns a boolean Series (`True` for rows with at least one outlier).
+- **Effect**:
+  - Identifies rows where any feature (`sepal length (cm)`, `sepal width (cm)`, `petal length (cm)`, `petal width (cm)`) has a Z-score > 3.
+- **Use Case**: Outlier detection is crucial for ensuring data quality in machine learning tasks.
+
+---
+
+### **12. Displaying Outliers**
+```python
+print("\nOutliers detected (Z-score > 3):")
+print(df[outliers])
+```
+
+- **Purpose**: Shows the rows identified as outliers.
+- **Method**:
+  - `df[outliers]`: Filters the DataFrame to show only rows where `outliers` is `True`.
+  - Output: One row (index 15) is flagged as an outlier, likely due to an unusually high `sepal width (cm)` value (4.4 cm).
+    - Row 15: `sepal length (cm)`: 5.7, `sepal width (cm)`: 4.4, `petal length (cm)`: 1.5, `petal width (cm)`: 1.236111, `target`: 0.
+- **Use Case**: Allows inspection of outliers to decide whether to remove or retain them.
+
+---
+
+### **13. Removing Outliers**
+```python
+df = df[~outliers]
+```
+
+- **Purpose**: Removes rows identified as outliers from the DataFrame.
+- **Method**:
+  - `~outliers`: Inverts the boolean Series (`True` becomes `False` and vice versa).
+  - `df[~outliers]`: Filters the DataFrame to keep only rows where `outliers` is `False`.
+- **Effect**:
+  - Removes row 15, reducing the DataFrame size to 149 rows.
+- **Use Case**: Removing outliers can improve model performance by reducing the impact of extreme values.
+
+---
+
+### **14. Applying Data Transformations**
+```python
+scaler = MinMaxScaler()
+df['sepal length (cm)_scaled'] = scaler.fit_transform(df[['sepal length (cm)']])
+
+transformer = PowerTransformer(method='yeo-johnson')
+df['petal width (cm)_transformed'] = transformer.fit_transform(df[['petal width (cm)']])
+```
+
+- **Purpose**: Applies transformations to normalize and reduce skewness in the data.
+- **Transformations**:
+  1. **Min-Max Scaling**:
+     - **Method**: `MinMaxScaler()` from `sklearn.preprocessing`.
+     - **Purpose**: Scales `sepal length (cm)` to the range [0, 1].
+     - **Formula**: `X_scaled = (X - X_min) / (X_max - X_min)`.
+     - **Steps**:
+       - `scaler.fit_transform(df[['sepal length (cm)']])`: Fits the scaler to the data (computes min and max) and transforms the column.
+       - Adds a new column `sepal length (cm)_scaled` with scaled values.
+     - **Use Case**: Ensures features are on the same scale, which is important for algorithms like SVM or KNN.
+  2. **Power Transformation (Yeo-Johnson)**:
+     - **Method**: `PowerTransformer(method='yeo-johnson')` from `sklearn.preprocessing`.
+     - **Purpose**: Applies the Yeo-Johnson transformation to `petal width (cm)` to reduce skewness and make the distribution more Gaussian-like.
+     - **Steps**:
+       - `transformer.fit_transform(df[['petal width (cm)']])`: Fits the transformer and applies the transformation.
+       - Adds a new column `petal width (cm)_transformed` with transformed values.
+     - **Use Case**: Reduces skewness, which can improve the performance of models sensitive to data distribution (e.g., linear regression).
+- **Effect**:
+  - Two new columns are added: `sepal length (cm)_scaled` and `petal width (cm)_transformed`.
+  - Original columns are preserved.
+
+---
+
+### **15. Displaying the Transformed Dataset**
+```python
+print("\nDataset after transformations:")
+print(df.head())
+```
+
+- **Purpose**: Shows the first 5 rows of the DataFrame with the new transformed columns.
+- **Method**:
+  - `df.head()`: Displays rows 0–4, including original columns (`sepal length (cm)`, etc.), `target`, and new columns (`sepal length (cm)_scaled`, `petal width (cm)_transformed`).
+- **Output**:
+  - Shows scaled values for `sepal length (cm)` (e.g., 0.222222 for 5.1 cm) and transformed values for `petal width (cm)` (e.g., -1.394147 for 0.2 cm).
+- **Use Case**: Verifies that transformations were applied correctly.
+
+---
+
+### **16. Visualizing Transformations**
+```python
+plt.figure(figsize=(12, 6))
+plt.subplot(1, 2, 1)
+sns.histplot(df['sepal length (cm)_scaled'], kde=True, color='blue')
+plt.title('Sepal Length - Min-Max Scaled')
+
+plt.subplot(1, 2, 2)
+sns.histplot(df['petal width (cm)_transformed'], kde=True, color='green')
+plt.title('Petal Width - Power Transformed')
+
+plt.tight_layout()
+plt.show()
+```
+
+- **Purpose**: Visualizes the distributions of the transformed columns using histograms with kernel density estimation (KDE).
+- **Methods**:
+  - `plt.figure(figsize=(12, 6))`: Creates a figure with dimensions 12x6 inches.
+  - `plt.subplot(1, 2, 1)`: Creates the first subplot in a 1x2 grid.
+  - `sns.histplot(df['sepal length (cm)_scaled'], kde=True, color='blue')`:
+    - Plots a histogram of the scaled `sepal length (cm)` values.
+    - `kde=True`: Adds a kernel density curve to show the distribution’s shape.
+    - `color='blue'`: Sets the histogram color.
+  - `plt.title('Sepal Length - Min-Max Scaled')`: Sets the title for the first subplot.
+  - `plt.subplot(1, 2, 2)`: Creates the second subplot.
+  - `sns.histplot(df['petal width (cm)_transformed'], kde=True, color='green')`:
+    - Plots a histogram of the transformed `petal width (cm)` values.
+  - `plt.title('Petal Width - Power Transformed')`: Sets the title for the second subplot.
+  - `plt.tight_layout()`: Adjusts subplot spacing to prevent overlap.
+  - `plt.show()`: Displays the plot.
+- **Output**:
+  - Two histograms:
+    - Left: Distribution of `sepal length (cm)_scaled`, showing values in [0, 1].
+    - Right: Distribution of `petal width (cm)_transformed`, showing a more Gaussian-like distribution after Yeo-Johnson transformation.
+- **Use Case**: Visualizations help assess the effect of transformations on data distribution.
+
+---
+
+### **Summary of Key Functions and Methods**
+| **Library/Method** | **Purpose** | **Usage in Code** |
+|--------------------|-------------|-------------------|
+| `pd.DataFrame` | Creates a DataFrame | Converts Iris data to DataFrame |
+| `load_iris` | Loads Iris dataset | Loads feature matrix and target |
+| `df.head()` | Displays first 5 rows | Inspects dataset |
+| `df.info()` | Shows DataFrame metadata | Checks data types and missing values |
+| `df.describe()` | Generates descriptive statistics | Summarizes numerical columns |
+| `df.loc` | Selects rows/columns by label | Introduces missing values |
+| `np.nan` | Represents missing values | Sets values to `NaN` |
+| `df.isnull().sum()` | Counts missing values | Identifies missing data |
+| `df.mean()` | Computes column means | Used for imputation |
+| `df.fillna` | Replaces missing values | Imputes `NaN` with mean |
+| `zscore` | Computes Z-scores | Detects outliers |
+| `np.abs` | Takes absolute value | Processes Z-scores |
+| `df.iloc` | Selects rows/columns by index | Selects features for Z-score |
+| `MinMaxScaler` | Scales data to [0, 1] | Scales `sepal length (cm)` |
+| `PowerTransformer` | Reduces skewness | Transforms `petal width (cm)` |
+| `plt.figure` | Creates a figure | Sets up visualization canvas |
+| `plt.subplot` | Creates subplots | Organizes histograms |
+| `sns.histplot` | Plots histogram with KDE | Visualizes transformed data |
+| `plt.title` | Sets plot title | Labels histograms |
+| `plt.tight_layout` | Adjusts subplot spacing | Prevents overlap |
+| `plt.show` | Displays plot | Shows histograms |
+
+---
+
+### **Data Overview**
+- **Iris Dataset**:
+  - **Initial Shape**: 150 rows × 5 columns.
+  - **Final Shape**: 149 rows × 7 columns (after removing 1 outlier, adding 2 transformed columns).
+  - **Columns**:
+    - Original: `sepal length (cm)`, `sepal width (cm)`, `petal length (cm)`, `petal width (cm)`, `target`.
+    - Added: `sepal length (cm)_scaled`, `petal width (cm)_transformed`.
+  - **Missing Values**:
+    - Introduced: 6 in `sepal length (cm)`, 6 in `petal width (cm)`.
+    - Handled: Imputed with column means.
+  - **Outliers**:
+    - Detected: 1 row (index 15, likely due to high `sepal width (cm)`).
+    - Removed: Reduced dataset to 149 rows.
+  - **Transformations**:
+    - `sepal length (cm)`: Scaled to [0, 1].
+    - `petal width (cm)`: Transformed using Yeo-Johnson to reduce skewness.
+
+---
+
+### **Potential Improvements**
+1. **Alternative Imputation Methods**:
+   - Instead of mean imputation, use median or KNN imputation for robustness.
+   ```python
+   from sklearn.impute import KNNImputer
+   imputer = KNNImputer(n_neighbors=5)
+   df[['sepal length (cm)', 'petal width (cm)']] = imputer.fit_transform(df[['sepal length (cm)', 'petal width (cm)']])
+   ```
+2. **Outlier Handling**:
+   - Instead of removing outliers, cap them at the 3rd Z-score threshold.
+   ```python
+   df.iloc[:, :-1] = df.iloc[:, :-1].clip(lower=df.iloc[:, :-1].mean() - 3*df.iloc[:, :-1].std(), 
+                                         upper=df.iloc[:, :-1].mean() + 3*df.iloc[:, :-1].std())
+   ```
+3. **Additional Visualizations**:
+   - Add box plots to visualize outliers before and after removal.
+   ```python
+   sns.boxplot(data=df[['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', 'petal width (cm)']])
+   plt.show()
+   ```
+4. **Transform All Features**:
+   - Apply scaling or transformation to all features for consistency.
+   ```python
+   df[['sepal width (cm)_scaled', 'petal length (cm)_scaled']] = scaler.fit_transform(df[['sepal width (cm)', 'petal length (cm)']])
+   ```
+5. **Skewness Check**:
+   - Calculate skewness before and after transformation to quantify improvement.
+   ```python
+   from scipy.stats import skew
+   print("Skewness before:", skew(df['petal width (cm)']))
+   print("Skewness after:", skew(df['petal width (cm)_transformed']))
+   ```
+6. **Classification Task**:
+   - Use the preprocessed data for a classification task (e.g., Logistic Regression) to evaluate the impact of preprocessing.
+   ```python
+   from sklearn.model_selection import train_test_split
+   from sklearn.linear_model import LogisticRegression
+   X = df[['sepal length (cm)_scaled', 'sepal width (cm)', 'petal length (cm)', 'petal width (cm)_transformed']]
+   y = df['target']
+   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+   model = LogisticRegression()
+   model.fit(X_train, y_train)
+   print("Accuracy:", model.score(X_test, y_test))
+   ```
+
+---
+
+### **Conclusion**
+The code performs preprocessing on the **Iris** dataset, including loading the data, introducing and handling missing values, detecting and removing outliers, and applying transformations (Min-Max scaling and Yeo-Johnson). It uses pandas for data manipulation, `scipy` for Z-scores, `sklearn` for transformations, and `seaborn`/`matplotlib` for visualization. The preprocessing steps prepare the data for machine learning by addressing missing values, outliers, and non-normal distributions. Enhancements like alternative imputation, additional visualizations, or a classification task could further improve the analysis.
