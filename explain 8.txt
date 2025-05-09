@@ -1,0 +1,402 @@
+The provided code is a Jupyter Notebook (`Prac 8 Data Visualization I.ipynb`) that performs basic data loading, exploration, and visualization using the Titanic dataset. The notebook uses Python libraries (`pandas`, `numpy`, `matplotlib`, `seaborn`) to load the dataset, check its structure, handle missing values, and create histograms of the `fare` column. Below is a detailed explanation of each cell, including the functions, data, and methods used, with a focus on clarity and completeness.
+
+---
+
+### **Overview**
+The notebook performs the following tasks:
+1. Imports necessary libraries (`pandas`, `numpy`, `matplotlib.pyplot`, `seaborn`).
+2. Loads the Titanic dataset from a CSV file (`titanic.csv`).
+3. Displays the first few rows and the shape of the dataset.
+4. Checks for missing values and removes rows with missing data.
+5. Creates histograms of the `fare` column using `seaborn`’s `distplot` (deprecated).
+
+The dataset is the well-known Titanic dataset, which contains information about passengers on the Titanic, including their survival status, class, sex, age, fare, and other attributes. The notebook focuses on basic data exploration and visualization of the `fare` column.
+
+---
+
+### **Cell-by-Cell Explanation**
+
+#### **Cell 1: Importing Libraries**
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+```
+
+**Explanation:**
+- **Libraries Imported**:
+  - `pandas as pd`: Used for data manipulation and analysis, particularly for handling tabular data (DataFrames).
+    - Key functionality: Reading CSV files, filtering data, handling missing values.
+  - `numpy as np`: Provides support for numerical operations and arrays, though not heavily used in this notebook.
+  - `matplotlib.pyplot as plt`: A plotting library for creating visualizations (used indirectly via `seaborn`).
+  - `seaborn as sns`: A statistical data visualization library built on top of `matplotlib`, used here for creating histograms.
+    - Seaborn simplifies the creation of complex visualizations and provides aesthetically pleasing defaults.
+
+- **Output**: None (imports only).
+
+**Purpose**: Sets up the environment by importing libraries for data manipulation and visualization.
+
+---
+
+#### **Cell 2: Loading and Displaying the Dataset**
+```python
+dataset = pd.read_csv('titanic.csv')
+dataset.head()
+```
+
+**Explanation:**
+- **Function Used**:
+  - `pd.read_csv('titanic.csv')`:
+    - **Purpose**: Reads a comma-separated values (CSV) file into a `pandas` DataFrame.
+    - **Input**: `'titanic.csv'`, the file path of the Titanic dataset.
+    - **Output**: `dataset`, a DataFrame containing the dataset’s rows and columns.
+  - `dataset.head()`:
+    - **Purpose**: Displays the first 5 rows of the DataFrame (default behavior).
+    - **Output**: A table showing the first 5 rows with all columns.
+
+- **Data**:
+  - The Titanic dataset contains 891 rows and 15 columns (as shown in later cells). The columns are:
+    - `survived`: Survival status (0 = No, 1 = Yes).
+    - `pclass`: Passenger class (1 = 1st, 2 = 2nd, 3 = 3rd).
+    - `sex`: Passenger’s sex (male, female).
+    - `age`: Passenger’s age (float, with some missing values).
+    - `sibsp`: Number of siblings/spouses aboard.
+    - `parch`: Number of parents/children aboard.
+    - `fare`: Ticket fare (float).
+    - `embarked`: Port of embarkation (C = Cherbourg, Q = Queenstown, S = Southampton).
+    - `class`: Passenger class as a string (First, Second, Third).
+    - `who`: Category of passenger (man, woman, child).
+    - `adult_male`: Whether the passenger is an adult male (True/False).
+    - `deck`: Cabin deck (A, B, C, etc., with many missing values).
+    - `embark_town`: Full name of the port of embarkation (Cherbourg, Queenstown, Southampton).
+    - `alive`: Survival status as a string (yes, no).
+    - `alone`: Whether the passenger was alone (True/False).
+
+- **Output**:
+  - A table showing the first 5 rows:
+    ```
+       survived  pclass     sex   age  sibsp  parch     fare embarked  class  \
+    0         0       3    male  22.0      1      0   7.2500        S  Third   
+    1         1       1  female  38.0      1      0  71.2833        C  First   
+    2         1       3  female  26.0      0      0   7.9250        S  Third   
+    3         1       1  female  35.0      1      0  53.1000        S  First   
+    4         0       3    male  35.0      0      0   8.0500        S  Third   
+    
+         who  adult_male deck  embark_town alive  alone  
+    0    man        True  NaN  Southampton    no  False  
+    1  woman       False    C    Cherbourg   yes  False  
+    2  woman       False  NaN  Southampton   yes   True  
+    3  woman       False    C  Southampton   yes  False  
+    4    man        True  NaN  Southampton    no   True  
+    ```
+
+**Purpose**: Loads the Titanic dataset and provides a quick preview of its structure and content.
+
+---
+
+#### **Cell 3: Checking Dataset Shape**
+```python
+dataset.shape
+```
+
+**Explanation:**
+- **Attribute Used**:
+  - `dataset.shape`:
+    - **Purpose**: Returns a tuple representing the dimensions of the DataFrame (rows, columns).
+    - **Output**: `(891, 15)`, indicating 891 rows and 15 columns.
+
+- **Output**:
+  ```python
+  (891, 15)
+  ```
+
+**Purpose**: Confirms the size of the dataset for initial exploration.
+
+---
+
+#### **Cell 4: Checking for Missing Values (Boolean Table)**
+```python
+dataset.isnull()
+```
+
+**Explanation:**
+- **Method Used**:
+  - `dataset.isnull()`:
+    - **Purpose**: Returns a DataFrame of the same shape as `dataset`, with `True` for missing values (`NaN`) and `False` for non-missing values.
+    - **Output**: A boolean DataFrame where each cell indicates whether the corresponding value in `dataset` is missing.
+
+- **Output**:
+  - A table showing `True`/`False` for each cell. For example:
+    ```
+         survived  pclass    sex    age  sibsp  parch   fare  embarked  class  \
+    0       False   False  False  False  False  False  False     False  False   
+    1       False   False  False  False  False  False  False     False  False   
+    2       False   False  False  False  False  False  False     False  False   
+    3       False   False  False  False  False  False  False     False  False   
+    4       False   False  False  False  False  False  False     False  False   
+    ..        ...     ...    ...    ...    ...    ...    ...       ...    ...   
+    886     False   False  False  False  False  False  False     False  False   
+    887     False   False  False  False  False  False  False     False  False   
+    888     False   False  False   True  False  False  False     False  False   
+    889     False   False  False  False  False  False  False     False  False   
+    890     False   False  False  False  False  False  False     False  False   
+    
+           who  adult_male   deck  embark_town  alive  alone  
+    0    False       False   True        False  False  False  
+    1    False       False  False        False  False  False  
+    2    False       False   True        False  False  False  
+    3    False       False  False        False  False  False  
+    4    False       False   True        False  False  False  
+    ..     ...         ...    ...          ...    ...    ...  
+    886  False       False   True        False  False  False  
+    887  False       False  False        False  False  False  
+    888  False       False   True        False  False  False  
+    889  False       False  False        False  False  False  
+    890  False       False   True        False  False  False  
+    ```
+
+**Purpose**: Identifies missing values in the dataset, though this output is less informative than a summary of missing values (provided in the next cell).
+
+---
+
+#### **Cell 5: Summarizing Missing Values**
+```python
+dataset.isnull().sum()
+```
+
+**Explanation:**
+- **Method Used**:
+  - `dataset.isnull().sum()`:
+    - **Purpose**: Computes the number of missing values (`NaN`) for each column by summing the `True` values from `dataset.isnull()`.
+    - **Output**: A Series with column names as indices and the count of missing values as values.
+
+- **Output**:
+  ```python
+  survived         0
+  pclass           0
+  sex              0
+  age            177
+  sibsp            0
+  parch            0
+  fare             0
+  embarked         2
+  class            0
+  who              0
+  adult_male       0
+  deck           688
+  embark_town      2
+  alive            0
+  alone            0
+  dtype: int64
+  ```
+  - **Interpretation**:
+    - `age`: 177 missing values (out of 891 rows).
+    - `embarked`: 2 missing values.
+    - `deck`: 688 missing values (highly incomplete column).
+    - `embark_town`: 2 missing values.
+    - Other columns: No missing values.
+
+**Purpose**: Provides a concise summary of missing data, highlighting columns that need cleaning.
+
+---
+
+#### **Cell 6: Removing Rows with Missing Values**
+```python
+dataset = dataset.dropna()
+```
+
+**Explanation:**
+- **Method Used**:
+  - `dataset.dropna()`:
+    - **Purpose**: Removes rows with any missing values (`NaN`) from the DataFrame.
+    - **Default Parameters**:
+      - `axis=0`: Drops rows (not columns).
+      - `how='any'`: Drops a row if it contains at least one `NaN`.
+    - **Output**: A new DataFrame with rows containing missing values removed.
+  - `dataset = dataset.dropna()`: Reassigns the cleaned DataFrame to `dataset`.
+
+- **Effect**:
+  - Rows with missing values in `age`, `embarked`, `deck`, or `embark_town` are removed.
+  - Given the high number of missing values in `deck` (688/891), this significantly reduces the dataset size. After dropping rows with any missing values, only rows with complete data (including `deck`) remain.
+  - The resulting dataset likely has ~183 rows (891 - 688 rows missing `deck`, minus additional rows missing `age` or `embarked`, assuming minimal overlap).
+
+- **Output**: None (modifies `dataset` in place).
+
+**Purpose**: Cleans the dataset by removing incomplete rows, though this approach is aggressive due to the high number of missing values in `deck`.
+
+---
+
+#### **Cell 7: Visualizing Fare Distribution (Histogram without KDE)**
+```python
+sns.distplot(dataset['fare'], kde=False)
+```
+
+**Explanation:**
+- **Function Used**:
+  - `sns.distplot(dataset['fare'], kde=False)`:
+    - **Purpose**: Creates a histogram of the `fare` column (deprecated in newer versions of Seaborn).
+    - **Parameters**:
+      - `dataset['fare']`: The data to plot (fare values from the cleaned `dataset`).
+      - `kde=False`: Disables the kernel density estimate (KDE) curve, showing only the histogram.
+    - **Output**: A histogram plot displayed via `matplotlib`.
+
+- **Warning**:
+  - The code generates a `UserWarning`:
+    ```
+    `distplot` is a deprecated function and will be removed in seaborn v0.14.0.
+    Please adapt your code to use either `displot` (a figure-level function with similar flexibility) or `histplot` (an axes-level function for histograms).
+    ```
+    - **Reason**: `sns.distplot` is outdated. Recommended alternatives:
+      - `sns.histplot(dataset['fare'])` for a histogram.
+      - `sns.displot(dataset['fare'], kind='hist')` for a figure-level equivalent.
+
+- **Output**:
+  - A histogram of the `fare` column with:
+    - **X-axis**: Fare values (likely ranging from 0 to ~500, based on the Titanic dataset).
+    - **Y-axis**: Count of passengers in each fare bin.
+    - **Default bins**: Automatically determined by Seaborn (based on data range and distribution).
+  - The plot shows a right-skewed distribution, with most fares being low (e.g., <100) and a few high fares (e.g., >300).
+  - **Image**: The embedded PNG shows a histogram with a skewed distribution, confirming the expected shape.
+
+- **Data**:
+  - The `fare` column contains ticket prices (float values) for passengers in the cleaned `dataset` (post-`dropna`).
+  - Since `dropna` removed many rows, the histogram represents only the ~183 passengers with complete data, likely biased toward first-class passengers (as `deck` data is more available for higher classes).
+
+**Purpose**: Visualizes the distribution of fares to understand their spread and skewness.
+
+---
+
+#### **Cell 8: Visualizing Fare Distribution (Histogram with Specified Bins)**
+```python
+sns.distplot(dataset['fare'], kde=False, bins=10)
+```
+
+**Explanation:**
+- **Function Used**:
+  - `sns.distplot(dataset['fare'], kde=False, bins=10)`:
+    - **Purpose**: Creates a histogram of the `fare` column with 10 bins (deprecated).
+    - **Parameters**:
+      - `dataset['fare']`: The data to plot (same as Cell 7).
+      - `kde=False`: Disables the KDE curve.
+      - `bins=10`: Specifies 10 bins for the histogram, overriding the default bin calculation.
+    - **Output**: A histogram plot with 10 bins.
+
+- **Warning**:
+  - Same `UserWarning` as in Cell 7, recommending `sns.histplot` or `sns.displot`.
+
+- **Output**:
+  - A histogram of the `fare` column with:
+    - **X-axis**: Fare values, divided into 10 equal-width bins.
+    - **Y-axis**: Count of passengers in each bin.
+    - **Bins**: The fare range (e.g., 0 to ~500) is divided into 10 intervals, each approximately 50 units wide (assuming max fare ~500).
+  - The plot remains right-skewed, but with fewer bins, it appears coarser than the previous histogram.
+  - **Image**: The embedded PNG shows a histogram with 10 bins, still reflecting the skewed distribution but with less granularity.
+
+- **Data**:
+  - Same as Cell 7: `fare` values from the cleaned `dataset` (~183 rows).
+  - The reduced number of bins simplifies the visualization, potentially obscuring finer details.
+
+**Purpose**: Visualizes the fare distribution with a fixed number of bins to explore how binning affects the histogram’s appearance.
+
+---
+
+### **Additional Notes**
+- **Data**:
+  - The Titanic dataset is a standard dataset for data analysis, containing 891 passenger records with 15 features.
+  - After `dropna`, the dataset is reduced to ~183 rows (those with complete data, including `deck`), which may bias the analysis toward first-class passengers (as `deck` is more often recorded for higher classes).
+  - The `fare` column, used for visualization, is continuous and right-skewed, typical for financial data.
+
+- **Methods and Functions**:
+  - **Pandas**:
+    - `pd.read_csv`: Loads tabular data from a CSV file.
+    - `DataFrame.head`: Displays the first few rows.
+    - `DataFrame.shape`: Returns the dimensions of the DataFrame.
+    - `DataFrame.isnull`: Identifies missing values.
+    - `DataFrame.isnull().sum`: Summarizes missing values per column.
+    - `DataFrame.dropna`: Removes rows with missing values.
+  - **Seaborn**:
+    - `sns.distplot` (deprecated): Creates histograms and optionally KDE plots.
+      - Recommended replacements: `sns.histplot` or `sns.displot`.
+
+- **Issues**:
+  - **Deprecation Warning**: The use of `sns.distplot` is outdated. The code should be updated to use `sns.histplot`:
+    ```python
+    sns.histplot(dataset['fare'])  # For Cell 7
+    sns.histplot(dataset['fare'], bins=10)  # For Cell 8
+    ```
+  - **Data Loss from `dropna`**: Dropping all rows with missing values (especially due to `deck`) removes ~80% of the data, potentially skewing results. Alternative approaches include:
+    - Dropping only specific columns (e.g., `dataset.drop(columns=['deck'])`).
+    - Imputing missing values (e.g., `dataset['age'].fillna(dataset['age'].mean())`).
+  - **No Plot Customization**: The histograms lack titles, labels, or additional styling, which could improve interpretability.
+
+- **Visualization Insights**:
+  - The `fare` distribution is right-skewed, with most passengers paying low fares and a few paying high fares (likely first-class passengers).
+  - The 10-bin histogram (Cell 8) is coarser, reducing visual noise but potentially hiding details compared to the default binning (Cell 7).
+
+---
+
+### **Potential Improvements**
+1. **Update Seaborn Function**:
+   - Replace `sns.distplot` with `sns.histplot` or `sns.displot`:
+     ```python
+     sns.histplot(dataset['fare'])  # Default bins
+     sns.histplot(dataset['fare'], bins=10)  # 10 bins
+     ```
+2. **Handle Missing Values Differently**:
+   - Instead of `dropna`, drop only the `deck` column or impute missing values:
+     ```python
+     dataset = pd.read_csv('titanic.csv')
+     dataset = dataset.drop(columns=['deck'])  # Drop deck
+     dataset['age'] = dataset['age'].fillna(dataset['age'].mean())  # Impute age
+     dataset = dataset.dropna()  # Drop remaining rows with missing embarked/embark_town
+     ```
+   - This preserves more data (~889 rows after dropping only `embarked`/`embark_town` missing rows).
+3. **Enhance Plot Aesthetics**:
+   - Add titles, labels, and styling:
+     ```python
+     sns.histplot(dataset['fare'], bins=10)
+     plt.title('Distribution of Ticket Fares')
+     plt.xlabel('Fare')
+     plt.ylabel('Count')
+     plt.show()
+     ```
+4. **Explore Other Visualizations**:
+   - Boxplot to highlight outliers:
+     ```python
+     sns.boxplot(x=dataset['fare'])
+     ```
+   - KDE plot for a smoother distribution:
+     ```python
+     sns.kdeplot(dataset['fare'])
+     ```
+5. **Analyze Other Columns**:
+   - Visualize `age`, `survived`, or `pclass` distributions:
+     ```python
+     sns.histplot(dataset['age'], bins=20)
+     sns.countplot(x='survived', data=dataset)
+     ```
+6. **Log-Transform Fare**:
+   - To handle the skewed `fare` distribution, apply a log transformation:
+     ```python
+     dataset['log_fare'] = np.log1p(dataset['fare'])  # log(1 + fare) to handle zeros
+     sns.histplot(dataset['log_fare'], bins=10)
+     ```
+
+---
+
+### **Summary**
+The notebook demonstrates basic data exploration and visualization:
+- **Libraries**: `pandas` (data manipulation), `numpy` (unused), `matplotlib.pyplot` (via Seaborn), `seaborn` (visualization).
+- **Data**: Titanic dataset (891 rows, 15 columns), reduced to ~183 rows after `dropna`.
+- **Methods**:
+  - `pd.read_csv`: Loads the dataset.
+  - `DataFrame.head`: Previews the data.
+  - `DataFrame.shape`: Checks dimensions.
+  - `DataFrame.isnull` and `isnull().sum`: Identifies missing values.
+  - `DataFrame.dropna`: Removes rows with missing values.
+  - `sns.distplot` (deprecated): Creates histograms of `fare`.
+- **Output**: Two histograms of the `fare` column, showing a right-skewed distribution.
+- **Challenges**: Deprecated `distplot` function and aggressive data loss from `dropna`.
+
+This code serves as an introductory example of data exploration and visualization, but it could be improved with modern Seaborn functions, better missing value handling, and enhanced plot customization.

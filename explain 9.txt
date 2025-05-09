@@ -1,0 +1,370 @@
+The provided code is a Jupyter Notebook (`Prac9 Data_Visualization_II (1).ipynb`) that performs data loading, exploration, and visualization using the Titanic dataset. The notebook uses Python libraries (`pandas`, `numpy`, `matplotlib`, `seaborn`) to load the dataset, check its structure, handle missing values, and create a strip plot to visualize the relationship between `sex`, `age`, and `survived`. Below is a detailed explanation of each cell, including the functions, data, and methods used, with a focus on clarity and completeness.
+
+---
+
+### **Overview**
+The notebook performs the following tasks:
+1. Imports necessary libraries (`pandas`, `numpy`, `matplotlib.pyplot`, `seaborn`).
+2. Loads the Titanic dataset from a CSV file (`titanic.csv`).
+3. Displays the first few rows and the shape of the dataset.
+4. Checks for missing values and removes rows with missing data.
+5. Creates a strip plot to visualize the distribution of `age` by `sex`, with points colored by `survived`.
+
+The dataset is the Titanic dataset, containing information about 891 passengers, including their survival status, class, sex, age, fare, and other attributes. The visualization focuses on the relationship between `sex`, `age`, and `survived`.
+
+---
+
+### **Cell-by-Cell Explanation**
+
+#### **Cell 1: Importing Libraries**
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+```
+
+**Explanation:**
+- **Libraries Imported**:
+  - `pandas as pd`: Used for data manipulation and analysis, particularly for handling tabular data (DataFrames).
+    - Key functionality: Reading CSV files, filtering data, handling missing values.
+  - `numpy as np`: Provides support for numerical operations and arrays, though not directly used in this notebook.
+  - `matplotlib.pyplot as plt`: A plotting library for creating visualizations (used indirectly via `seaborn`).
+  - `seaborn as sns`: A statistical data visualization library built on top of `matplotlib`, used here for creating a strip plot.
+    - Seaborn simplifies complex visualizations and provides aesthetically pleasing defaults.
+
+- **Output**: None (imports only).
+
+**Purpose**: Sets up the environment by importing libraries for data manipulation and visualization.
+
+---
+
+#### **Cell 2: Loading and Displaying the Dataset**
+```python
+dataset = pd.read_csv('titanic.csv')
+dataset.head()
+```
+
+**Explanation:**
+- **Function Used**:
+  - `pd.read_csv('titanic.csv')`:
+    - **Purpose**: Reads a comma-separated values (CSV) file into a `pandas` DataFrame.
+    - **Input**: `'titanic.csv'`, the file path of the Titanic dataset.
+    - **Output**: `dataset`, a DataFrame containing the dataset’s rows and columns.
+  - `dataset.head()`:
+    - **Purpose**: Displays the first 5 rows of the DataFrame (default behavior).
+    - **Output**: A table showing the first 5 rows with all columns.
+
+- **Data**:
+  - The Titanic dataset contains 891 rows and 15 columns (as shown in later cells). The columns are:
+    - `survived`: Survival status (0 = No, 1 = Yes).
+    - `pclass`: Passenger class (1 = 1st, 2 = 2nd, 3 = 3rd).
+    - `sex`: Passenger’s sex (male, female).
+    - `age`: Passenger’s age (float, with some missing values).
+    - `sibsp`: Number of siblings/spouses aboard.
+    - `parch`: Number of parents/children aboard.
+    - `fare`: Ticket fare (float).
+    - `embarked`: Port of embarkation (C = Cherbourg, Q = Queenstown, S = Southampton).
+    - `class`: Passenger class as a string (First, Second, Third).
+    - `who`: Category of passenger (man, woman, child).
+    - `adult_male`: Whether the passenger is an adult male (True/False).
+    - `deck`: Cabin deck (A, B, C, etc., with many missing values).
+    - `embark_town`: Full name of the port of embarkation (Cherbourg, Queenstown, Southampton).
+    - `alive`: Survival status as a string (yes, no).
+    - `alone`: Whether the passenger was alone (True/False).
+
+- **Output**:
+  - A table showing the first 5 rows:
+    ```
+       survived  pclass     sex   age  sibsp  parch     fare embarked  class  \
+    0         0       3    male  22.0      1      0   7.2500        S  Third   
+    1         1       1  female  38.0      1      0  71.2833        C  First   
+    2         1       3  female  26.0      0      0   7.9250        S  Third   
+    3         1       1  female  35.0      1      0  53.1000        S  First   
+    4         0       3    male  35.0      0      0   8.0500        S  Third   
+    
+         who  adult_male deck  embark_town alive  alone  
+    0    man        True  NaN  Southampton    no  False  
+    1  woman       False    C    Cherbourg   yes  False  
+    2  woman       False  NaN  Southampton   yes   True  
+    3  woman       False    C  Southampton   yes  False  
+    4    man        True  NaN  Southampton    no   True  
+    ```
+
+**Purpose**: Loads the Titanic dataset and provides a quick preview of its structure and content.
+
+---
+
+#### **Cell 3: Checking Dataset Shape**
+```python
+dataset.shape
+```
+
+**Explanation:**
+- **Attribute Used**:
+  - `dataset.shape`:
+    - **Purpose**: Returns a tuple representing the dimensions of the DataFrame (rows, columns).
+    - **Output**: `(891, 15)`, indicating 891 rows and 15 columns.
+
+- **Output**:
+  ```python
+  (891, 15)
+  ```
+
+**Purpose**: Confirms the size of the dataset for initial exploration.
+
+---
+
+#### **Cell 4: Checking for Missing Values (Boolean Table)**
+```python
+dataset.isnull()
+```
+
+**Explanation:**
+- **Method Used**:
+  - `dataset.isnull()`:
+    - **Purpose**: Returns a DataFrame of the same shape as `dataset`, with `True` for missing values (`NaN`) and `False` for non-missing values.
+    - **Output**: A boolean DataFrame where each cell indicates whether the corresponding value in `dataset` is missing.
+
+- **Output**:
+  - A table showing `True`/`False` for each cell. For example:
+    ```
+         survived  pclass    sex    age  sibsp  parch   fare  embarked  class  \
+    0       False   False  False  False  False  False  False     False  False   
+    1       False   False  False  False  False  False  False     False  False   
+    2       False   False  False  False  False  False  False     False  False   
+    3       False   False  False  False  False  False  False     False  False   
+    4       False   False  False  False  False  False  False     False  False   
+    ..        ...     ...    ...    ...    ...    ...    ...       ...    ...   
+    886     False   False  False  False  False  False  False     False  False   
+    887     False   False  False  False  False  False  False     False  False   
+    888     False   False  False   True  False  False  False     False  False   
+    889     False   False  False  False  False  False  False     False  False   
+    890     False   False  False  False  False  False  False     False  False   
+    
+           who  adult_male   deck  embark_town  alive  alone  
+    0    False       False   True        False  False  False  
+    1    False       False  False        False  False  False  
+    2    False       False   True        False  False  False  
+    3    False       False  False        False  False  False  
+    4    False       False   True        False  False  False  
+    ..     ...         ...    ...          ...    ...    ...  
+    886  False       False   True        False  False  False  
+    887  False       False  False        False  False  False  
+    888  False       False   True        False  False  False  
+    889  False       False  False        False  False  False  
+    890  False       False   True        False  False  False  
+    ```
+
+**Purpose**: Identifies missing values in the dataset, though this output is less informative than a summary of missing values (provided in the next cell).
+
+---
+
+#### **Cell 5: Summarizing Missing Values**
+```python
+dataset.isnull().sum()
+```
+
+**Explanation:**
+- **Method Used**:
+  - `dataset.isnull().sum()`:
+    - **Purpose**: Computes the number of missing values (`NaN`) for each column by summing the `True` values from `dataset.isnull()`.
+    - **Output**: A Series with column names as indices and the count of missing values as values.
+
+- **Output**:
+  ```python
+  survived         0
+  pclass           0
+  sex              0
+  age            177
+  sibsp            0
+  parch            0
+  fare             0
+  embarked         2
+  class            0
+  who              0
+  adult_male       0
+  deck           688
+  embark_town      2
+  alive            0
+  alone            0
+  dtype: int64
+  ```
+  - **Interpretation**:
+    - `age`: 177 missing values (out of 891 rows).
+    - `embarked`: 2 missing values.
+    - `deck`: 688 missing values (highly incomplete column).
+    - `embark_town`: 2 missing values.
+    - Other columns: No missing values.
+
+**Purpose**: Provides a concise summary of missing data, highlighting columns that need cleaning.
+
+---
+
+#### **Cell 6: Removing Rows with Missing Values**
+```python
+dataset = dataset.dropna()
+```
+
+**Explanation:**
+- **Method Used**:
+  - `dataset.dropna()`:
+    - **Purpose**: Removes rows with any missing values (`NaN`) from the DataFrame.
+    - **Default Parameters**:
+      - `axis=0`: Drops rows (not columns).
+      - `how='any'`: Drops a row if it contains at least one `NaN`.
+    - **Output**: A new DataFrame with rows containing missing values removed.
+  - `dataset = dataset.dropna()`: Reassigns the cleaned DataFrame to `dataset`.
+
+- **Effect**:
+  - Rows with missing values in `age`, `embarked`, `deck`, or `embark_town` are removed.
+  - Given the high number of missing values in `deck` (688/891), this significantly reduces the dataset size. After dropping rows with any missing values, only rows with complete data (including `deck`) remain.
+  - The resulting dataset likely has ~183 rows (891 - 688 rows missing `deck`, minus additional rows missing `age` or `embarked`, assuming minimal overlap).
+
+- **Output**: None (modifies `dataset` in place).
+
+**Purpose**: Cleans the dataset by removing incomplete rows, though this approach is aggressive due to the high number of missing values in `deck`.
+
+---
+
+#### **Cell 7: Creating a Strip Plot**
+```python
+sns.stripplot(x='sex', y='age', data=dataset, jitter=True, hue='survived')
+```
+
+**Explanation:**
+- **Function Used**:
+  - `sns.stripplot(x='sex', y='age', data=dataset, jitter=True, hue='survived')`:
+    - **Purpose**: Creates a categorical scatter plot (strip plot) to visualize the distribution of `age` (continuous variable) across `sex` (categorical variable), with points colored by `survived` (categorical variable).
+    - **Parameters**:
+      - `x='sex'`: Specifies the categorical variable (`sex`) for the x-axis, which has two categories: `male` and `female`.
+      - `y='age'`: Specifies the continuous variable (`age`) for the y-axis, representing passenger ages.
+      - `data=dataset`: The DataFrame containing the data (`dataset`, post-`dropna`).
+      - `jitter=True`: Adds random noise to the x-coordinates of points to prevent overlapping, making it easier to see individual data points.
+      - `hue='survived'`: Colors the points based on the `survived` column (0 = No, 1 = Yes), with a legend indicating survival status.
+    - **Output**: A `seaborn.axisgrid.JointGrid` object, which is displayed as a strip plot via `matplotlib`.
+
+- **Output**:
+  - A strip plot with:
+    - **X-axis**: Two categories (`male` and `female`).
+    - **Y-axis**: Age values (ranging from ~0 to ~80, based on the Titanic dataset).
+    - **Points**: Each point represents a passenger, positioned by their `sex` and `age`.
+    - **Colors**: Points are colored by `survived` (e.g., blue for 0 = Did Not Survive, orange for 1 = Survived, based on Seaborn’s default palette).
+    - **Jitter**: Points are slightly spread out horizontally within each `sex` category to avoid overlap.
+  - The embedded PNG shows:
+    - Two vertical strips of points (one for `male`, one for `female`).
+    - Ages spread along the y-axis, with most points between 20 and 60.
+    - Points colored by survival status, with a legend indicating which color corresponds to `survived=0` or `survived=1`.
+    - Visual insights:
+      - Both males and females have a range of ages, but the distribution appears denser for certain age groups (e.g., 20–40).
+      - Survival patterns may be observable (e.g., more orange points for females, suggesting higher survival rates).
+
+- **Data**:
+  - The plot uses the cleaned `dataset` (~183 rows after `dropna`).
+  - Columns used:
+    - `sex`: Categorical (male, female).
+    - `age`: Continuous (float, passenger ages).
+    - `survived`: Categorical (0 = No, 1 = Yes).
+  - The reduced dataset (post-`dropna`) is likely biased toward first-class passengers, as `deck` data is more available for higher classes, which may affect the visualization.
+
+- **Return Value**:
+  - The cell outputs `<seaborn.axisgrid.JointGrid at 0x205395ccec0>`, indicating the plot object.
+  - This is typically not used directly, as the plot is displayed automatically in Jupyter.
+
+**Purpose**: Visualizes the relationship between `sex`, `age`, and `survived`, allowing exploration of how age distributions differ by sex and whether survival rates vary across these groups.
+
+---
+
+### **Additional Notes**
+- **Data**:
+  - The Titanic dataset originally contains 891 passenger records with 15 features.
+  - After `dropna`, the dataset is reduced to ~183 rows (those with complete data, including `deck`), which may bias the analysis toward first-class passengers.
+  - The strip plot uses `sex` (categorical), `age` (continuous), and `survived` (categorical), focusing on a subset of the dataset’s features.
+
+- **Methods and Functions**:
+  - **Pandas**:
+    - `pd.read_csv`: Loads tabular data from a CSV file.
+    - `DataFrame.head`: Displays the first few rows.
+    - `DataFrame.shape`: Returns the dimensions of the DataFrame.
+    - `DataFrame.isnull`: Identifies missing values.
+    - `DataFrame.isnull().sum`: Summarizes missing values per column.
+    - `DataFrame.dropna`: Removes rows with missing values.
+  - **Seaborn**:
+    - `sns.stripplot`: Creates a categorical scatter plot, useful for visualizing the distribution of a continuous variable across categories.
+
+- **Issues**:
+  - **Data Loss from `dropna`**: Dropping all rows with missing values (especially due to `deck`, with 688/891 missing) removes ~80% of the data, potentially skewing results. Alternative approaches include:
+    - Dropping only specific columns (e.g., `dataset.drop(columns=['deck'])`).
+    - Imputing missing values (e.g., `dataset['age'].fillna(dataset['age'].mean())`).
+  - **No Plot Customization**: The strip plot lacks a title, axis labels, or additional styling, which could improve interpretability.
+  - **Small Sample Size**: The reduced dataset (~183 rows) may limit the reliability of insights from the strip plot, especially for underrepresented groups.
+
+- **Visualization Insights**:
+  - The strip plot shows the distribution of ages for males and females, with jitter preventing overlap of points.
+  - Coloring by `survived` highlights survival patterns (e.g., females may have more survivors, consistent with historical Titanic data).
+  - The plot is useful for identifying trends, such as whether certain age groups or sexes had higher survival rates, though the small sample size post-`dropna` may affect conclusions.
+
+---
+
+### **Potential Improvements**
+1. **Handle Missing Values Differently**:
+   - Instead of `dropna`, drop only the `deck` column or impute missing values:
+     ```python
+     dataset = pd.read_csv('titanic.csv')
+     dataset = dataset.drop(columns=['deck'])  # Drop deck
+     dataset['age'] = dataset['age'].fillna(dataset['age'].mean())  # Impute age
+     dataset = dataset.dropna()  # Drop remaining rows with missing embarked/embark_town
+     ```
+   - This preserves more data (~889 rows after dropping only `embarked`/`embark_town` missing rows), improving the strip plot’s representativeness.
+2. **Enhance Plot Aesthetics**:
+   - Add titles, labels, and styling:
+     ```python
+     sns.stripplot(x='sex', y='age', data=dataset, jitter=True, hue='survived')
+     plt.title('Age Distribution by Sex and Survival Status')
+     plt.xlabel('Sex')
+     plt.ylabel('Age')
+     plt.show()
+     ```
+3. **Use Alternative Visualizations**:
+   - **Swarm Plot**: Similar to a strip plot but avoids overlap without random jitter:
+     ```python
+     sns.swarmplot(x='sex', y='age', data=dataset, hue='survived')
+     ```
+   - **Box Plot**: To summarize age distributions:
+     ```python
+     sns.boxplot(x='sex', y='age', data=dataset, hue='survived')
+     ```
+   - **Violin Plot**: To show the density of age distributions:
+     ```python
+     sns.violinplot(x='sex', y='age', data=dataset, hue='survived', split=True)
+     ```
+4. **Increase Dataset Size**:
+   - By imputing or dropping fewer rows, the plot would include more data points, improving its statistical robustness.
+5. **Explore Additional Variables**:
+   - Visualize other variables like `pclass` or `fare`:
+     ```python
+     sns.stripplot(x='pclass', y='age', data=dataset, jitter=True, hue='survived')
+     ```
+6. **Customize Hue Palette**:
+   - Use a custom color palette for better clarity:
+     ```python
+     sns.stripplot(x='sex', y='age', data=dataset, jitter=True, hue='survived', palette='Set1')
+     ```
+
+---
+
+### **Summary**
+The notebook demonstrates data exploration and visualization:
+- **Libraries**: `pandas` (data manipulation), `numpy` (unused), `matplotlib.pyplot` (via Seaborn), `seaborn` (visualization).
+- **Data**: Titanic dataset (891 rows, 15 columns), reduced to ~183 rows after `dropna`.
+- **Methods**:
+  - `pd.read_csv`: Loads the dataset.
+  - `DataFrame.head`: Previews the data.
+  - `DataFrame.shape`: Checks dimensions.
+  - `DataFrame.isnull` and `isnull().sum`: Identifies missing values.
+  - `DataFrame.dropna`: Removes rows with missing values.
+  - `sns.stripplot`: Creates a categorical scatter plot of `age` by `sex`, colored by `survived`.
+- **Output**: A strip plot showing age distributions for males and females, with survival status indicated by color.
+- **Challenges**: Significant data loss from `dropna` and lack of plot customization.
+
+This code serves as an example of categorical data visualization, but it could be improved with better missing value handling, enhanced plot styling, and alternative visualization techniques to provide more robust insights.

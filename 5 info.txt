@@ -1,0 +1,176 @@
+# Explanation of the Practical-5.ipynb Notebook
+
+This Jupyter notebook demonstrates a machine learning workflow for predicting whether a user will purchase a product based on social network ad data. Here's a detailed breakdown of each section:
+
+## 1. Importing Libraries
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
+```
+
+The notebook imports essential Python libraries for:
+- Data manipulation (pandas, numpy)
+- Data visualization (matplotlib, seaborn)
+- Machine learning (scikit-learn components)
+
+## 2. Loading the Dataset
+```python
+df = pd.read_csv("Social_Network_Ads.csv")
+display(df.head())
+```
+
+Loads the "Social_Network_Ads.csv" dataset and displays the first few rows. The dataset contains:
+- User ID
+- Gender
+- Age
+- EstimatedSalary
+- Purchased (target variable)
+
+## 3. Data Preprocessing
+
+### Checking for Missing Values
+```python
+print("Missing values in each column:")
+print(df.isnull().sum())
+```
+
+Verifies there are no missing values in the dataset.
+
+### Encoding Categorical Variables
+```python
+from sklearn.preprocessing import LabelEncoder
+label_encoders = {}
+for column in df.select_dtypes(include=['object']).columns:
+    le = LabelEncoder()
+    df[column] = le.fit_transform(df[column])
+    label_encoders[column] = le
+```
+
+Converts categorical variables (like Gender) to numerical values using LabelEncoder.
+
+### Feature/Target Separation
+```python
+X = df.iloc[:, :-1]  # Features
+y = df.iloc[:, -1]   # Target variable
+```
+
+Separates features (X) from the target variable (y).
+
+### Feature Scaling
+```python
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+```
+
+Standardizes features by removing the mean and scaling to unit variance.
+
+### Train-Test Split
+```python
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+```
+
+Splits data into training (80%) and testing (20%) sets.
+
+## 4. Model Building and Training
+
+### Logistic Regression Model
+```python
+model = LogisticRegression()
+model.fit(X_train, y_train)
+```
+
+Creates and trains a Logistic Regression classifier.
+
+## 5. Model Evaluation
+
+### Making Predictions
+```python
+y_pred = model.predict(X_test)
+```
+
+Uses the trained model to make predictions on the test set.
+
+### Confusion Matrix Calculation
+```python
+cm = confusion_matrix(y_test, y_pred)
+TP = cm[1, 1]  # True Positives
+TN = cm[0, 0]  # True Negatives
+FP = cm[0, 1]  # False Positives
+FN = cm[1, 0]  # False Negatives
+```
+
+Calculates the confusion matrix and extracts its components.
+
+### Performance Metrics
+```python
+accuracy = accuracy_score(y_test, y_pred)
+error_rate = 1 - accuracy
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+```
+
+Computes key evaluation metrics:
+- Accuracy
+- Error Rate
+- Precision
+- Recall
+
+### Results Display
+```python
+print(f'Confusion Matrix:\n{cm}')
+print(f'True Positives (TP): {TP}')
+print(f'True Negatives (TN): {TN}')
+print(f'False Positives (FP): {FP}')
+print(f'False Negatives (FN): {FN}')
+print(f'Accuracy: {accuracy:.2f}')
+print(f'Error Rate: {error_rate:.2f}')
+print(f'Precision: {precision:.2f}')
+print(f'Recall: {recall:.2f}')
+```
+
+Shows the model's performance metrics.
+
+## 6. Visualization
+
+### Confusion Matrix Heatmap
+```python
+plt.figure(figsize=(6, 4))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+            xticklabels=['Not Purchased', 'Purchased'], 
+            yticklabels=['Not Purchased', 'Purchased'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+```
+
+Creates a visual representation of the confusion matrix.
+
+## Key Findings
+
+The model achieved:
+- 89% accuracy
+- 91% precision
+- 75% recall
+- Confusion matrix showing:
+  - 50 true negatives
+  - 21 true positives
+  - 2 false positives
+  - 7 false negatives
+
+## Workflow Summary
+
+1. Data loading and inspection
+2. Data preprocessing (encoding, scaling)
+3. Train-test split
+4. Model training (Logistic Regression)
+5. Model evaluation
+6. Performance visualization
+
+This notebook demonstrates a complete binary classification workflow using social network ad data to predict purchase behavior.
